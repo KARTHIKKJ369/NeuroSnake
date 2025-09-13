@@ -1,0 +1,39 @@
+{
+  "name": "neurosnake",
+  "version": "1.0.0",
+  "description": "🐍 AI-Powered Snake Game Remix with adaptive difficulty, power-ups, and multiplayer",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "snake",
+    "game",
+    "ai",
+    "adaptive",
+    "multiplayer",
+    "html5",
+    "canvas",
+    "javascript",
+    "retro",
+    "cyberpunk"
+  ],
+  "author": "NeuroSnake Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/neurosnake"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

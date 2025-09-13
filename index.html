@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSnake - AI-Powered Snake Game Remix</title>
+    <link rel="stylesheet" href="styles.css?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header class="game-header">
+            <h1 class="game-title">🐍 NeuroSnake</h1>
+            <p class="game-subtitle">AI-Powered Snake Game Remix</p>
+        </header>
+
+        <div class="game-container">
+            <div class="game-info">
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="current-score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">High Score</span>
+                    <span class="stat-value" id="high-score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Level</span>
+                    <span class="stat-value" id="current-level">1</span>
+                </div>
+                <div class="stat-item trending-food-info">
+                    <span class="stat-label">Next Food</span>
+                    <span class="stat-value" id="next-food-preview">🍎</span>
+                </div>
+            </div>                <div class="power-ups">
+                    <h3>Power-Ups</h3>
+                    <div class="power-up-grid">
+                        <div class="power-up" id="speed-boost">
+                            <span class="power-up-icon">⚡</span>
+                            <span class="power-up-name">Speed</span>
+                            <span class="power-up-count">0</span>
+                        </div>
+                        <div class="power-up" id="teleport">
+                            <span class="power-up-icon">🌀</span>
+                            <span class="power-up-name">Teleport</span>
+                            <span class="power-up-count">0</span>
+                        </div>
+                        <div class="power-up" id="shield">
+                            <span class="power-up-icon">🛡️</span>
+                            <span class="power-up-name">Shield</span>
+                            <span class="power-up-count">0</span>
+                        </div>
+                        <div class="power-up" id="freeze">
+                            <span class="power-up-icon">❄️</span>
+                            <span class="power-up-name">Freeze</span>
+                            <span class="power-up-count">0</span>
+                        </div>
+                        <div class="power-up" id="ghost">
+                            <span class="power-up-icon">👻</span>
+                            <span class="power-up-name">Ghost</span>
+                            <span class="power-up-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <canvas id="gameCanvas" width="800" height="800"></canvas>
+                <div class="game-overlay" id="game-overlay">
+                    <div class="menu" id="main-menu">
+                        <h2>Choose Your Mode</h2>
+                        <button class="menu-btn" id="single-player">🎯 Single Player</button>
+                        <button class="menu-btn" id="multiplayer">👥 Multiplayer Arena</button>
+                        <button class="menu-btn" id="ai-training">🧠 AI Training Mode</button>
+                    </div>
+
+                    <div class="menu hidden" id="pause-menu">
+                        <h2>Game Paused</h2>
+                        <button class="menu-btn" id="resume-game">▶️ Resume</button>
+                        <button class="menu-btn" id="restart-game">🔄 Restart</button>
+                        <button class="menu-btn" id="main-menu-btn">🏠 Main Menu</button>
+                    </div>
+
+                    <div class="menu hidden" id="game-over">
+                        <h2>Game Over!</h2>
+                        <p>Your Score: <span id="final-score">0</span></p>
+                        <p>AI adapted to level: <span id="final-ai-level">1</span></p>
+                        <button class="menu-btn" id="play-again">Play Again</button>
+                        <button class="menu-btn" id="share-replay">Share Replay</button>
+                        <button class="menu-btn" id="view-leaderboard">Leaderboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="theme-selector">
+                    <h3>Dynamic Theme</h3>
+                    <div id="current-theme" class="theme-display">
+                        <span class="theme-icon">🌅</span>
+                        <span class="theme-name">Dawn</span>
+                    </div>
+                    <p class="theme-description">Themes auto-change based on your location and time!</p>
+                </div>
+
+                <div class="leaderboard-preview">
+                    <h3>Top Players</h3>
+                    <div class="leaderboard-list" id="leaderboard-preview">
+                        <div class="leaderboard-item">
+                            <span class="rank">1.</span>
+                            <span class="player">SnakeMaster</span>
+                            <span class="score">2,840</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank">2.</span>
+                            <span class="player">AI_Hunter</span>
+                            <span class="score">2,590</span>
+                        </div>
+                        <div class="leaderboard-item">
+                            <span class="rank">3.</span>
+                            <span class="player">You</span>
+                            <span class="score">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-info">
+            <h3>Controls</h3>
+            <div class="controls-grid">
+                <div class="control">
+                    <kbd>↑↓←→</kbd> <span>Move Snake</span>
+                </div>
+                <div class="control">
+                    <kbd>WASD</kbd> <span>Alt Movement</span>
+                </div>
+                <div class="control">
+                    <kbd>Space</kbd> <span>Pause Game</span>
+                </div>
+                <div class="control">
+                    <kbd>P</kbd> <span>Spawn Power-Up</span>
+                </div>
+                <div class="control">
+                    <kbd>T</kbd> <span>🌀 Teleport</span>
+                </div>
+                <div class="control">
+                    <kbd>F</kbd> <span>❄️ Freeze</span>
+                </div>
+                <div class="control">
+                    <kbd>1</kbd> <span>⚡ Speed Boost</span>
+                </div>
+                <div class="control">
+                    <kbd>2</kbd> <span>👻 Ghost Mode</span>
+                </div>
+                <div class="control">
+                    <kbd>3</kbd> <span>🛡️ Shield</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/gameEngine.js?v=12"></script>
+    <script src="js/aiSystem.js"></script>
+    <script src="js/powerUps.js?v=11"></script>
+    <script src="js/themes.js"></script>
+    <script src="js/multiplayer.js?v=2"></script>
+    <script src="js/trendingFood.js?v=2"></script>
+    <script src="js/trendingFoodsUI.js"></script>
+    <script src="js/main.js?v=13"></script>
+</body>
+</html>

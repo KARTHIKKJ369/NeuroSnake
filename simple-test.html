@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Snake Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: white; }
+        canvas { border: 2px solid #00ff88; background: #000; }
+    </style>
+</head>
+<body>
+    <h1>Simple Snake Test</h1>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <button id="start-btn">Start Game</button>
+    
+    <script>
+        class SimpleSnake {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.gridSize = 20;
+                this.snake = [{ x: 10, y: 10 }];
+                this.direction = { x: 0, y: 0 };
+                this.food = { x: 15, y: 15 };
+                this.gameRunning = false;
+                
+                console.log('Snake initialized');
+                this.draw();
+            }
+            
+            start() {
+                console.log('Starting game...');
+                this.gameRunning = true;
+                this.direction = { x: 1, y: 0 };
+                this.gameLoop();
+            }
+            
+            gameLoop() {
+                if (!this.gameRunning) return;
+                
+                this.update();
+                this.draw();
+                
+                setTimeout(() => this.gameLoop(), 200);
+            }
+            
+            update() {
+                if (this.direction.x === 0 && this.direction.y === 0) return;
+                
+                const head = { ...this.snake[0] };
+                head.x += this.direction.x;
+                head.y += this.direction.y;
+                
+                this.snake.unshift(head);
+                
+                // Check food collision
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.food = {
+                        x: Math.floor(Math.random() * 30),
+                        y: Math.floor(Math.random() * 30)
+                    };
+                } else {
+                    this.snake.pop();
+                }
+            }
+            
+            draw() {
+                console.log('Drawing...');
+                
+                // Clear canvas
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw snake
+                this.ctx.fillStyle = '#00ff88';
+                for (let segment of this.snake) {
+                    this.ctx.fillRect(
+                        segment.x * this.gridSize,
+                        segment.y * this.gridSize,
+                        this.gridSize - 2,
+                        this.gridSize - 2
+                    );
+                }
+                
+                // Draw food
+                this.ctx.fillStyle = '#ff0080';
+                this.ctx.fillRect(
+                    this.food.x * this.gridSize,
+                    this.food.y * this.gridSize,
+                    this.gridSize - 2,
+                    this.gridSize - 2
+                );
+                
+                console.log('Draw complete');
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('Page loaded, creating snake...');
+            const snake = new SimpleSnake();
+            
+            document.getElementById('start-btn').addEventListener('click', () => {
+                console.log('Start button clicked');
+                snake.start();
+            });
+            
+            // Arrow key controls
+            document.addEventListener('keydown', (e) => {
+                if (!snake.gameRunning) return;
+                
+                switch(e.code) {
+                    case 'ArrowUp':
+                        snake.direction = { x: 0, y: -1 };
+                        break;
+                    case 'ArrowDown':
+                        snake.direction = { x: 0, y: 1 };
+                        break;
+                    case 'ArrowLeft':
+                        snake.direction = { x: -1, y: 0 };
+                        break;
+                    case 'ArrowRight':
+                        snake.direction = { x: 1, y: 0 };
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
