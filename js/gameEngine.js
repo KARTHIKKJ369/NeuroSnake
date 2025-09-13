@@ -27,6 +27,7 @@ class GameEngine {
         this.socialBoostCounter = 0; // For trending food social boost effect
         
         this.generateFood();
+        this.loadHighScore(); // Load and display the high score
         console.log('🎮 GameEngine initialized successfully');
     }
     
@@ -98,6 +99,8 @@ class GameEngine {
         this.snake = [{ x: 10, y: 10 }]; // Grid coordinates, not pixel coordinates
         this.direction = { x: 0, y: 0 };
         this.score = 0;
+        this.updateScore(); // Initialize score display
+        this.loadHighScore(); // Ensure high score is loaded
         this.speed = this.originalSpeed;
         this.socialBoostCounter = 0; // Reset social boost
         this.gameRunning = true;
@@ -232,6 +235,7 @@ class GameEngine {
             }
             
             this.score += foodPoints;
+            this.updateScore(); // Update the display
             this.food = null;
             this.generateFood();
             
@@ -536,7 +540,24 @@ class GameEngine {
     }
     
     updateScore() {
-        document.getElementById('score').textContent = this.score;
+        document.getElementById('current-score').textContent = this.score;
+        this.updateHighScore();
+    }
+    
+    getHighScore() {
+        const scores = JSON.parse(localStorage.getItem('neurosnake-scores') || '[]');
+        return scores.length > 0 ? scores[0].score : 0;
+    }
+    
+    updateHighScore() {
+        const highScore = this.getHighScore();
+        const currentHighScore = Math.max(highScore, this.score);
+        document.getElementById('high-score').textContent = currentHighScore;
+    }
+    
+    loadHighScore() {
+        const highScore = this.getHighScore();
+        document.getElementById('high-score').textContent = highScore;
     }
     
     togglePause() {
@@ -657,6 +678,7 @@ class GameEngine {
         localStorage.setItem('neurosnake-scores', JSON.stringify(scores));
         
         this.updateLeaderboardDisplay();
+        this.loadHighScore(); // Update high score display after saving
     }
     
     updateLeaderboardDisplay() {

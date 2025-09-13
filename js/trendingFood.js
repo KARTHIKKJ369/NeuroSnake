@@ -298,6 +298,7 @@ class TrendingFoodSystem {
             window.powerUpSystem.updatePowerUpDisplay();
         }
         game.score += 15; // Bonus crypto gains
+        game.updateScore(); // Update the display
         this.showBonusMessage('🚀 CRYPTO SURGE! Speed boost + bonus coins!', '#F7931A');
     }
     
