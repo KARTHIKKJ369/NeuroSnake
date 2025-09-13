@@ -15,6 +15,8 @@ class GameEngine {
         this.tileCount = Math.floor(this.canvas.width / this.gridSize); // Add tileCount property for power-ups
         this.snake = [{ x: 10, y: 10 }]; // Grid coordinates, not pixel coordinates
         this.direction = { x: 0, y: 0 };
+        this.nextDirection = { x: 0, y: 0 }; // Buffer for next direction change
+        this.lastDirectionChange = 0; // Timestamp of last direction change
         this.food = null;
         this.score = 0;
         this.gameRunning = false;
@@ -22,6 +24,7 @@ class GameEngine {
         this.isGhostMode = false; // Track ghost mode state
         this.speed = 150;
         this.originalSpeed = 150;
+        this.lastAIUpdate = 0; // Throttle AI updates
         this.particles = [];
         this.powerUps = []; // Initialize powerUps array
         this.socialBoostCounter = 0; // For trending food social boost effect
@@ -98,6 +101,8 @@ class GameEngine {
         
         this.snake = [{ x: 10, y: 10 }]; // Grid coordinates, not pixel coordinates
         this.direction = { x: 0, y: 0 };
+        this.nextDirection = { x: 0, y: 0 }; // Reset buffered direction
+        this.lastDirectionChange = 0; // Reset direction change timestamp
         this.score = 0;
         this.updateScore(); // Initialize score display
         this.loadHighScore(); // Ensure high score is loaded
@@ -105,6 +110,7 @@ class GameEngine {
         this.socialBoostCounter = 0; // Reset social boost
         this.gameRunning = true;
         this.isGhostMode = false; // Reset ghost mode
+        this.lastAIUpdate = 0; // Reset AI update timer
         
         console.log('🎮 gameRunning after reset:', this.gameRunning);
         
@@ -147,16 +153,32 @@ class GameEngine {
     }    changeDirection(dx, dy) {
         console.log(`🎮 changeDirection called: dx=${dx}, dy=${dy}, current direction:`, this.direction);
         
-        // Prevent reverse direction
+        // Prevent too rapid direction changes (debounce)
+        const now = Date.now();
+        if (now - this.lastDirectionChange < 50) { // 50ms minimum between direction changes
+            console.log('⏱️ Direction change too rapid, ignoring');
+            return;
+        }
+        
+        // Prevent reverse direction based on current direction
         if ((dx === -this.direction.x && this.direction.x !== 0) || 
             (dy === -this.direction.y && this.direction.y !== 0)) {
             console.log('❌ Reverse direction blocked');
             return;
         }
         
-        this.direction.x = dx;
-        this.direction.y = dy;
-        console.log('✅ Direction changed to:', this.direction);
+        // Also prevent reverse direction based on next buffered direction
+        if ((dx === -this.nextDirection.x && this.nextDirection.x !== 0) || 
+            (dy === -this.nextDirection.y && this.nextDirection.y !== 0)) {
+            console.log('❌ Reverse direction blocked (buffered)');
+            return;
+        }
+        
+        // Buffer the direction change
+        this.nextDirection.x = dx;
+        this.nextDirection.y = dy;
+        this.lastDirectionChange = now;
+        console.log('✅ Direction buffered:', this.nextDirection);
     }
     
     gameLoop() {
@@ -177,6 +199,15 @@ class GameEngine {
     }
     
     update() {
+        // Apply buffered direction change at the start of each update cycle
+        if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
+            this.direction.x = this.nextDirection.x;
+            this.direction.y = this.nextDirection.y;
+            this.nextDirection.x = 0;
+            this.nextDirection.y = 0;
+            console.log('🔄 Applied buffered direction:', this.direction);
+        }
+        
         // Don't update if snake is not moving yet
         if (this.direction.x === 0 && this.direction.y === 0) {
             return;
@@ -252,6 +283,15 @@ class GameEngine {
         
         // Update particles
         this.updateParticles();
+        
+        // AI difficulty adaptation - only in single player mode, and throttled
+        if (this.gameMode === 'single' && window.aiSystem && window.aiSystem.adaptDifficulty) {
+            const now = Date.now();
+            if (now - this.lastAIUpdate > 3000) { // Only update AI every 3 seconds
+                window.aiSystem.adaptDifficulty(this.score, this.snake.length);
+                this.lastAIUpdate = now;
+            }
+        }
     }
     
     draw() {

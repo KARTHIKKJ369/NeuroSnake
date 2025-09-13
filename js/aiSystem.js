@@ -95,32 +95,36 @@ class AISystem {
     }
     
     increaseDifficulty() {
-        this.playerSkillLevel = Math.min(10, this.playerSkillLevel + 0.1);
-        this.difficultyModifiers.speedMultiplier = Math.min(2, this.difficultyModifiers.speedMultiplier + 0.05);
-        this.difficultyModifiers.foodComplexity = Math.min(3, this.difficultyModifiers.foodComplexity + 0.1);
+        this.playerSkillLevel = Math.min(10, this.playerSkillLevel + 0.05); // Slower increase
+        this.difficultyModifiers.speedMultiplier = Math.min(1.5, this.difficultyModifiers.speedMultiplier + 0.02); // Smaller increments
+        this.difficultyModifiers.foodComplexity = Math.min(2, this.difficultyModifiers.foodComplexity + 0.05); // Less extreme
         
         console.log('🔥 Difficulty increased! Player is performing well.');
     }
     
     decreaseDifficulty() {
-        this.playerSkillLevel = Math.max(0.5, this.playerSkillLevel - 0.05);
-        this.difficultyModifiers.speedMultiplier = Math.max(0.7, this.difficultyModifiers.speedMultiplier - 0.02);
-        this.difficultyModifiers.powerUpFrequency = Math.min(2, this.difficultyModifiers.powerUpFrequency + 0.1);
+        this.playerSkillLevel = Math.max(0.5, this.playerSkillLevel - 0.02); // Smaller decrease
+        this.difficultyModifiers.speedMultiplier = Math.max(0.8, this.difficultyModifiers.speedMultiplier - 0.01); // Smaller decrease
+        this.difficultyModifiers.powerUpFrequency = Math.min(1.5, this.difficultyModifiers.powerUpFrequency + 0.05); // Less extreme
         
         console.log('🎯 Difficulty adjusted down. Providing more support.');
     }
     
     adjustGameSpeed(score, snakeLength) {
-        if (game) {
-            const baseSpeed = 150;
-            const speedReduction = Math.floor(score / 50) * 5; // Faster every 50 points
-            const aiSpeedModifier = Math.max(0.5, Math.min(2.0, this.difficultyModifiers.speedMultiplier)); // Clamp modifier
+        if (window.gameEngine) {
+            const baseSpeed = window.gameEngine.originalSpeed; // Use original speed as base
+            const speedReduction = Math.floor(score / 100) * 10; // Less aggressive: faster every 100 points, by 10ms
+            const aiSpeedModifier = Math.max(0.8, Math.min(1.5, this.difficultyModifiers.speedMultiplier)); // Less extreme range
             
-            // Calculate new speed more safely
-            const targetSpeed = Math.max(50, baseSpeed - speedReduction);
-            game.gameSpeed = Math.max(30, targetSpeed / aiSpeedModifier); // Ensure minimum speed
+            // Calculate new speed more conservatively
+            const targetSpeed = Math.max(80, baseSpeed - speedReduction); // Higher minimum speed
+            const newSpeed = Math.max(60, targetSpeed / aiSpeedModifier); // Even higher absolute minimum
             
-            console.log(`🎮 Speed adjusted: Base=${baseSpeed}, Reduction=${speedReduction}, Modifier=${aiSpeedModifier.toFixed(2)}, Final=${game.gameSpeed.toFixed(0)}`);
+            // Only change speed if the difference is significant (avoid micro-adjustments)
+            if (Math.abs(window.gameEngine.speed - newSpeed) > 5) {
+                window.gameEngine.speed = newSpeed;
+                console.log(`🎮 Speed adjusted: Base=${baseSpeed}, Reduction=${speedReduction}, Modifier=${aiSpeedModifier.toFixed(2)}, Final=${newSpeed.toFixed(0)}`);
+            }
         }
     }
     
@@ -340,7 +344,7 @@ class AISystem {
     }
     
     updateAILevelDisplay() {
-        const levelElement = document.getElementById('ai-level');
+        const levelElement = document.getElementById('current-level');
         if (levelElement) {
             levelElement.textContent = this.getCurrentLevel();
         }
