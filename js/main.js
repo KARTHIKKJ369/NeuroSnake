@@ -254,7 +254,175 @@ class NeuroSnakeApp {
             }
         });
         
+        // Setup mobile touch controls
+        this.setupMobileControls();
+        
         console.log('✅ Event listeners set up successfully!');
+    }
+    
+    setupMobileControls() {
+        console.log('📱 Setting up mobile touch controls...');
+        
+        // Direction buttons
+        const directionButtons = {
+            'up-btn': { x: 0, y: -1 },
+            'down-btn': { x: 0, y: 1 },
+            'left-btn': { x: -1, y: 0 },
+            'right-btn': { x: 1, y: 0 }
+        };
+        
+        Object.entries(directionButtons).forEach(([buttonId, direction]) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (this.gameEngine && this.gameEngine.gameRunning) {
+                        this.gameEngine.changeDirection(direction.x, direction.y);
+                    }
+                });
+                
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (this.gameEngine && this.gameEngine.gameRunning) {
+                        this.gameEngine.changeDirection(direction.x, direction.y);
+                    }
+                });
+            }
+        });
+        
+        // Power-up buttons
+        const powerUpButtons = {
+            'speed-btn': '1',
+            'teleport-btn': '2', 
+            'shield-btn': '3',
+            'freeze-btn': '4',
+            'ghost-btn': '5'
+        };
+        
+        Object.entries(powerUpButtons).forEach(([buttonId, key]) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.usePowerUpByKey(key);
+                });
+                
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.usePowerUpByKey(key);
+                });
+            }
+        });
+        
+        // Pause button
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn) {
+            pauseBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (this.gameEngine && this.gameEngine.gameRunning) {
+                    this.togglePause();
+                }
+            });
+            
+            pauseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (this.gameEngine && this.gameEngine.gameRunning) {
+                    this.togglePause();
+                }
+            });
+        }
+        
+        console.log('✅ Mobile controls set up successfully!');
+        
+        // Add swipe gesture support
+        this.setupSwipeControls();
+    }
+    
+    setupSwipeControls() {
+        let startX = 0;
+        let startY = 0;
+        let endX = 0;
+        let endY = 0;
+        
+        const canvas = this.canvas;
+        if (!canvas) return;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+        }, { passive: true });
+        
+        canvas.addEventListener('touchend', (e) => {
+            if (e.changedTouches.length === 0) return;
+            
+            const touch = e.changedTouches[0];
+            endX = touch.clientX;
+            endY = touch.clientY;
+            
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            const minSwipeDistance = 30;
+            
+            // Only process swipe if it's long enough
+            if (Math.abs(deltaX) > minSwipeDistance || Math.abs(deltaY) > minSwipeDistance) {
+                // Determine primary direction
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Horizontal swipe
+                    if (deltaX > 0) {
+                        this.gameEngine?.changeDirection(1, 0); // Right
+                    } else {
+                        this.gameEngine?.changeDirection(-1, 0); // Left
+                    }
+                } else {
+                    // Vertical swipe
+                    if (deltaY > 0) {
+                        this.gameEngine?.changeDirection(0, 1); // Down
+                    } else {
+                        this.gameEngine?.changeDirection(0, -1); // Up
+                    }
+                }
+            }
+        }, { passive: true });
+        
+        console.log('✅ Swipe controls set up successfully!');
+    }
+    
+    usePowerUpByKey(key) {
+        if (this.powerUpSystem && this.gameEngine && this.gameEngine.gameRunning) {
+            switch(key) {
+                case '1':
+                    this.powerUpSystem.usePowerUp('speed');
+                    break;
+                case '2':
+                    this.powerUpSystem.usePowerUp('teleport');
+                    break;
+                case '3':
+                    this.powerUpSystem.usePowerUp('shield');
+                    break;
+                case '4':
+                    this.powerUpSystem.usePowerUp('freeze');
+                    break;
+                case '5':
+                    this.powerUpSystem.usePowerUp('ghost');
+                    break;
+            }
+        }
+    }
+    
+    togglePause() {
+        if (this.gameEngine) {
+            this.gameEngine.togglePause();
+            
+            const pauseMenu = document.getElementById('pause-menu');
+            const gameOverlay = document.getElementById('game-overlay');
+            
+            if (this.gameEngine.isPaused) {
+                this.showMenu('pause-menu');
+            } else {
+                this.hideGameOverlay();
+            }
+        }
     }
     
     startGame(mode = 'single') {

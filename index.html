@@ -67,6 +67,62 @@
 
             <div class="game-area">
                 <canvas id="gameCanvas" width="800" height="800"></canvas>
+                
+                <!-- Mobile Touch Controls -->
+                <div class="mobile-controls" id="mobile-controls">
+                    <div class="controls-top">
+                        <div class="control-row">
+                            <button class="control-btn direction-btn" id="up-btn" data-direction="up">
+                                <span class="arrow">↑</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn direction-btn" id="left-btn" data-direction="left">
+                                <span class="arrow">←</span>
+                            </button>
+                            <button class="control-btn direction-btn" id="right-btn" data-direction="right">
+                                <span class="arrow">→</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn direction-btn" id="down-btn" data-direction="down">
+                                <span class="arrow">↓</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="controls-bottom">
+                        <div class="power-up-buttons">
+                            <button class="control-btn power-btn" id="speed-btn" data-powerup="1">
+                                <span class="power-icon">⚡</span>
+                                <span class="power-label">Speed</span>
+                            </button>
+                            <button class="control-btn power-btn" id="teleport-btn" data-powerup="2">
+                                <span class="power-icon">🌀</span>
+                                <span class="power-label">Teleport</span>
+                            </button>
+                            <button class="control-btn power-btn" id="shield-btn" data-powerup="3">
+                                <span class="power-icon">🛡️</span>
+                                <span class="power-label">Shield</span>
+                            </button>
+                            <button class="control-btn power-btn" id="freeze-btn" data-powerup="4">
+                                <span class="power-icon">❄️</span>
+                                <span class="power-label">Freeze</span>
+                            </button>
+                            <button class="control-btn power-btn" id="ghost-btn" data-powerup="5">
+                                <span class="power-icon">👻</span>
+                                <span class="power-label">Ghost</span>
+                            </button>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="control-btn action-btn" id="pause-btn">
+                                <span class="action-icon">⏸️</span>
+                                <span class="action-label">Pause</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="game-overlay" id="game-overlay">
                     <div class="menu" id="main-menu">
                         <h2>Choose Your Mode</h2>

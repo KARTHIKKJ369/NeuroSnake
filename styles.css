@@ -403,3 +403,209 @@ kbd {
 .theme-night {
     background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
 }
+
+/* Mobile Touch Controls */
+.mobile-controls {
+    display: none; /* Hidden by default, shown on mobile */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    pointer-events: none; /* Allow clicks to pass through container */
+}
+
+.mobile-controls * {
+    pointer-events: auto; /* Re-enable clicks on buttons */
+}
+
+.controls-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.control-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.controls-bottom {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.power-up-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #00ff88;
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.direction-btn {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.power-btn {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.action-btn {
+    width: 60px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.power-icon, .action-icon {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.power-label, .action-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.arrow {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.control-btn:hover, .control-btn:focus {
+    background: rgba(0, 255, 136, 0.2);
+    border-color: #00ccff;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    transform: scale(1.05);
+}
+
+.control-btn:active {
+    background: rgba(0, 255, 136, 0.4);
+    transform: scale(0.95);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+}
+
+/* Show mobile controls on small screens */
+@media (max-width: 768px) {
+    .mobile-controls {
+        display: block;
+    }
+    
+    .game-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .game-info, .multiplayer-info {
+        order: 2; /* Move info panels below game on mobile */
+    }
+    
+    .game-area {
+        order: 1;
+    }
+    
+    #gameCanvas {
+        max-width: 90vw;
+        max-height: 60vh;
+        width: auto;
+        height: auto;
+    }
+    
+    /* Adjust power-up panel for mobile */
+    .power-ups-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .power-up {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* Make stats panel more compact */
+    .stats-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+    
+    .stat-item {
+        margin-bottom: 8px;
+        min-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .power-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .direction-btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .power-icon, .action-icon {
+        font-size: 14px;
+    }
+    
+    .power-label, .action-label {
+        font-size: 7px;
+    }
+    
+    .arrow {
+        font-size: 24px;
+    }
+    
+    .controls-bottom {
+        gap: 10px;
+    }
+    
+    .power-up-buttons {
+        gap: 6px;
+    }
+}
