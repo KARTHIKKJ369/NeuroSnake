@@ -362,6 +362,20 @@ class NeuroSnakeApp {
             });
         }
         
+        // Mobile ESC button
+        const mobileEscBtn = document.getElementById('mobile-esc-btn');
+        if (mobileEscBtn) {
+            mobileEscBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.handleMobileEsc();
+            });
+            
+            mobileEscBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleMobileEsc();
+            });
+        }
+        
         console.log('✅ Mobile controls set up successfully!');
         
         // Add swipe gesture support
@@ -453,6 +467,70 @@ class NeuroSnakeApp {
                 this.hideGameOverlay();
             }
         }
+    }
+
+    handleMobileEsc() {
+        console.log('📱 Mobile ESC button pressed');
+        
+        // Check if a modal is open and close it
+        const leaderboardModal = document.getElementById('leaderboard-modal');
+        const shareModal = document.getElementById('share-modal');
+        
+        if (leaderboardModal && !leaderboardModal.classList.contains('hidden')) {
+            console.log('📱 Closing leaderboard modal');
+            leaderboardModal.classList.add('hidden');
+            return;
+        }
+        
+        if (shareModal) {
+            console.log('📱 Closing share modal');
+            shareModal.remove();
+            return;
+        }
+        
+        // Check current game state and handle accordingly
+        if (!this.gameEngine) return;
+        
+        const gameOverlay = document.getElementById('game-overlay');
+        const pauseMenu = document.getElementById('pause-menu');
+        const gameOverMenu = document.getElementById('game-over');
+        const mainMenu = document.getElementById('main-menu');
+        
+        // If game over screen is showing, go to main menu
+        if (gameOverMenu && !gameOverMenu.classList.contains('hidden')) {
+            console.log('📱 ESC from game over - showing main menu');
+            this.showMainMenu();
+            return;
+        }
+        
+        // If pause menu is showing, resume the game
+        if (pauseMenu && !pauseMenu.classList.contains('hidden')) {
+            console.log('📱 ESC from pause menu - resuming game');
+            this.resumeGame();
+            return;
+        }
+        
+        // If main menu is showing, do nothing (already at top level)
+        if (mainMenu && !mainMenu.classList.contains('hidden')) {
+            console.log('📱 ESC from main menu - no action needed');
+            return;
+        }
+        
+        // If game is running, pause it
+        if (this.gameEngine.gameRunning && !this.gameEngine.isPaused) {
+            console.log('📱 ESC during game - pausing');
+            this.togglePause();
+            return;
+        }
+        
+        // If game is paused, resume it
+        if (this.gameEngine.isPaused) {
+            console.log('📱 ESC from paused game - resuming');
+            this.resumeGame();
+            return;
+        }
+        
+        console.log('📱 ESC button - no specific action for current state');
     }
     
     startGame(mode = 'single') {
