@@ -13,6 +13,15 @@ class PowerUpSystem {
         this.powerUpChance = 0.02; // Base chance per frame
         this.lastSpawnTime = 0;
         
+        // Track power-up usage for sharing
+        this.usageStats = {
+            speed: 0,
+            teleport: 0,
+            shield: 0,
+            freeze: 0,
+            ghost: 0
+        };
+        
         this.setupEventListeners();
     }
     
@@ -148,6 +157,7 @@ class PowerUpSystem {
         }
         
         this.powerUps[type].count--;
+        this.usageStats[type]++; // Track usage for sharing
         console.log(`🎮 ${type} count after decrement:`, this.powerUps[type].count);
         this.updatePowerUpDisplay();
         
@@ -352,22 +362,12 @@ class PowerUpSystem {
     }
     
     activateGhost() {
-        console.log('👻 Attempting to activate ghost mode');
-        console.log('👻 Ghost count:', this.powerUps.ghost.count);
-        
-        if (this.powerUps.ghost.count <= 0) {
-            this.showMessage('👻 No ghost power-ups available!', 'warning');
-            return false;
-        }
+        console.log('👻 Activating ghost mode');
         
         if (this.activePowerUps.has('ghost')) {
             this.showMessage('👻 Ghost mode already active!', 'warning');
             return false;
         }
-        
-        // Use one ghost power-up
-        this.powerUps.ghost.count--;
-        this.updatePowerUpDisplay();
         
         this.activePowerUps.add('ghost');
         
@@ -499,7 +499,24 @@ class PowerUpSystem {
         
         this.updatePowerUpDisplay();
         
+        // Reset usage stats for new game
+        this.resetUsageStats();
+        
         console.log('🔄 Power-up system reset for new game');
+    }
+
+    getUsageStats() {
+        return { ...this.usageStats };
+    }
+
+    resetUsageStats() {
+        this.usageStats = {
+            speed: 0,
+            teleport: 0,
+            shield: 0,
+            freeze: 0,
+            ghost: 0
+        };
     }
 }
 

@@ -42,16 +42,11 @@ class GameEngine {
         const singlePlayerBtn = document.getElementById('single-player');
         const multiplayerBtn = document.getElementById('multiplayer');
         const aiTrainingBtn = document.getElementById('ai-training');
-        const playAgainBtn = document.getElementById('play-again');
-        const shareReplayBtn = document.getElementById('share-replay');
-        const leaderboardBtn = document.getElementById('view-leaderboard');
         
         if (singlePlayerBtn) singlePlayerBtn.addEventListener('click', () => this.startGame('single'));
         if (multiplayerBtn) multiplayerBtn.addEventListener('click', () => this.startGame('multiplayer'));
         if (aiTrainingBtn) aiTrainingBtn.addEventListener('click', () => this.startGame('ai-training'));
-        // Note: Play Again button is handled by main.js to avoid conflicts
-        if (shareReplayBtn) shareReplayBtn.addEventListener('click', () => this.shareReplay());
-        if (leaderboardBtn) leaderboardBtn.addEventListener('click', () => this.showLeaderboard());
+        // Note: Play Again, Share Replay, and Leaderboard buttons are handled by main.js to avoid conflicts
     }
     
     handleKeyPress(e) {
@@ -111,6 +106,7 @@ class GameEngine {
         this.gameRunning = true;
         this.isGhostMode = false; // Reset ghost mode
         this.lastAIUpdate = 0; // Reset AI update timer
+        this.gameStartTime = Date.now(); // Track when game started
         
         console.log('🎮 gameRunning after reset:', this.gameRunning);
         
@@ -695,13 +691,306 @@ class GameEngine {
     }
     
     shareReplay() {
-        // Implement replay sharing functionality
-        alert('Replay shared! 🎮 Check your social media for the awesome snake moves!');
+        // Create a comprehensive game summary
+        const gameStats = this.generateGameSummary();
+        const shareText = this.formatShareText(gameStats);
+        
+        // Try Web Share API first (mobile/modern browsers)
+        if (navigator.share && navigator.canShare) {
+            navigator.share({
+                title: 'NeuroSnake Game Result 🐍',
+                text: shareText,
+                url: window.location.href
+            }).then(() => {
+                this.showShareSuccess('Shared successfully! 🎉');
+            }).catch((error) => {
+                console.log('Share failed:', error);
+                this.fallbackShare(shareText);
+            });
+        } else {
+            // Fallback to clipboard + social media options
+            this.fallbackShare(shareText);
+        }
+    }
+
+    generateGameSummary() {
+        const aiLevel = window.aiSystem ? window.aiSystem.getCurrentLevel() : 1;
+        const gameMode = this.gameMode || 'Classic';
+        const powerUpsUsed = window.powerUpSystem ? window.powerUpSystem.getUsageStats() : {};
+        
+        // Calculate play time
+        const playTime = this.gameStartTime ? 
+            Math.floor((Date.now() - this.gameStartTime) / 1000) : 0;
+        
+        return {
+            score: this.score,
+            aiLevel: aiLevel,
+            gameMode: gameMode,
+            playTime: playTime,
+            snakeLength: this.snake.length,
+            powerUpsUsed: powerUpsUsed,
+            timestamp: new Date().toLocaleString()
+        };
+    }
+
+    formatShareText(stats) {
+        const minutes = Math.floor(stats.playTime / 60);
+        const seconds = stats.playTime % 60;
+        const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+        
+        let shareText = `🐍 NeuroSnake Results 🐍\n\n`;
+        shareText += `🎯 Score: ${stats.score.toLocaleString()} points\n`;
+        shareText += `📏 Snake Length: ${stats.snakeLength} segments\n`;
+        shareText += `🧠 AI Level: ${stats.aiLevel}\n`;
+        shareText += `🎮 Mode: ${stats.gameMode}\n`;
+        shareText += `⏱️ Play Time: ${timeStr}\n`;
+        
+        // Add power-up usage if any
+        const powerUpCount = Object.values(stats.powerUpsUsed).reduce((a, b) => a + b, 0);
+        if (powerUpCount > 0) {
+            shareText += `⚡ Power-ups Used: ${powerUpCount}\n`;
+        }
+        
+        shareText += `\nPlay NeuroSnake and beat my score! 🏆`;
+        
+        return shareText;
+    }
+
+    fallbackShare(shareText) {
+        // Create share modal
+        this.showShareModal(shareText);
+    }
+
+    showShareModal(shareText) {
+        // Create modal HTML
+        const modalHTML = `
+            <div class="modal-overlay" id="share-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>📤 Share Your Game</h2>
+                        <button class="close-btn" onclick="document.getElementById('share-modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; color: #00ff88; font-weight: bold;">Game Summary:</label>
+                            <textarea id="share-text" readonly style="width: 100%; height: 200px; background: #1a1a2e; border: 1px solid #00ff88; border-radius: 8px; padding: 15px; color: #ffffff; font-family: monospace; resize: vertical;">${shareText}</textarea>
+                        </div>
+                        <div class="share-buttons" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <button class="menu-btn" onclick="navigator.clipboard.writeText(document.getElementById('share-text').value).then(() => alert('Copied to clipboard! 📋'))">
+                                📋 Copy to Clipboard
+                            </button>
+                            <button class="menu-btn" onclick="window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(document.getElementById('share-text').value), '_blank')">
+                                🐦 Share on Twitter
+                            </button>
+                            <button class="menu-btn" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href) + '&quote=' + encodeURIComponent(document.getElementById('share-text').value), '_blank')">
+                                📘 Share on Facebook
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="menu-btn" onclick="document.getElementById('share-modal').remove()">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        // Auto-select text for easy copying
+        setTimeout(() => {
+            const textArea = document.getElementById('share-text');
+            if (textArea) {
+                textArea.select();
+            }
+        }, 100);
+    }
+
+    showShareSuccess(message) {
+        // Show a temporary success message
+        const successDiv = document.createElement('div');
+        successDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 3000;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.4);
+            animation: slideIn 0.3s ease-out;
+        `;
+        successDiv.textContent = message;
+        
+        // Add slide-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(successDiv);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            successDiv.remove();
+            style.remove();
+        }, 3000);
+    }
+
+    ensureModalEventListeners(modal) {
+        // Check if listeners are already set up
+        if (modal.dataset.listenersSetup) return;
+        
+        const closeBtn = modal?.querySelector('.close-btn') || document.getElementById('close-leaderboard');
+        const clearBtn = document.getElementById('clear-scores');
+
+        console.log('🔧 Ensuring modal listeners:', { modal, closeBtn, clearBtn });
+
+        // Close modal on close button click
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('❌ Close button clicked');
+                modal.classList.add('hidden');
+            });
+            console.log('✅ Close button listener added');
+        }
+
+        // Close modal on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                console.log('🔙 Modal overlay clicked');
+                modal.classList.add('hidden');
+            }
+        });
+
+        // Clear scores button
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                console.log('🗑️ Clear scores clicked');
+                this.clearAllScores();
+            });
+        }
+
+        // ESC key to close modal
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                console.log('⌨️ Escape pressed, closing modal');
+                modal.classList.add('hidden');
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+
+        // Mark as set up
+        modal.dataset.listenersSetup = 'true';
     }
     
     showLeaderboard() {
-        // Implement full leaderboard view
-        alert('Full leaderboard coming soon! 🏆');
+        const modal = document.getElementById('leaderboard-modal');
+        const modalBody = modal.querySelector('.modal-body');
+        
+        // Ensure modal event listeners are set up
+        this.ensureModalEventListeners(modal);
+        
+        // Show loading state
+        modalBody.innerHTML = '<div class="leaderboard-loading">Loading scores...</div>';
+        modal.classList.remove('hidden');
+        
+        // Get all scores from localStorage
+        const scores = JSON.parse(localStorage.getItem('neurosnake-scores') || '[]');
+        
+        // Add current game score if not saved yet
+        let allScores = [...scores];
+        if (this.score > 0) {
+            const currentScore = {
+                score: this.score,
+                date: new Date().toISOString(),
+                mode: this.gameMode,
+                aiLevel: window.aiSystem ? window.aiSystem.getCurrentLevel() : 1,
+                isCurrent: true
+            };
+            allScores.push(currentScore);
+            allScores.sort((a, b) => b.score - a.score);
+        }
+        
+        // Render leaderboard
+        setTimeout(() => {
+            this.renderLeaderboard(allScores, modalBody);
+        }, 300);
+    }
+
+    renderLeaderboard(scores, container) {
+        if (scores.length === 0) {
+            container.innerHTML = `
+                <div class="no-scores">
+                    <div class="no-scores-icon">🎮</div>
+                    <div>No scores yet!</div>
+                    <div style="margin-top: 10px; color: #666;">Play a game to see your scores here.</div>
+                </div>
+            `;
+            return;
+        }
+
+        const leaderboardHTML = scores.slice(0, 20).map((score, index) => {
+            const rank = index + 1;
+            const date = new Date(score.date);
+            const timeAgo = this.getTimeAgo(date);
+            const rankClass = rank === 1 ? 'first' : rank === 2 ? 'second' : rank === 3 ? 'third' : '';
+            const entryClass = score.isCurrent ? 'top-score' : '';
+            
+            return `
+                <div class="leaderboard-entry ${entryClass}">
+                    <div class="entry-rank ${rankClass}">#${rank}</div>
+                    <div class="entry-details">
+                        <div class="entry-score">${score.score.toLocaleString()} points</div>
+                        <div class="entry-info">
+                            ${score.mode || 'Classic'} Mode • AI Level ${score.aiLevel || 1} • ${timeAgo}
+                            ${score.isCurrent ? ' • Current Game' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="leaderboard-full">
+                ${leaderboardHTML}
+            </div>
+        `;
+    }
+
+    getTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return date.toLocaleDateString();
+    }
+
+    clearAllScores() {
+        if (confirm('Are you sure you want to clear all scores? This cannot be undone.')) {
+            localStorage.removeItem('neurosnake-scores');
+            this.updateLeaderboardDisplay();
+            
+            // Refresh leaderboard modal if open
+            const modal = document.getElementById('leaderboard-modal');
+            if (!modal.classList.contains('hidden')) {
+                this.showLeaderboard();
+            }
+        }
     }
     
     saveScore() {

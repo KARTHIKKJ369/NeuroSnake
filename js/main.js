@@ -150,6 +150,27 @@ class NeuroSnakeApp {
             });
         }
         
+        // Game Over screen buttons
+        const shareReplayBtn = document.getElementById('share-replay');
+        if (shareReplayBtn) {
+            shareReplayBtn.addEventListener('click', () => {
+                console.log('📤 Share Replay button clicked');
+                if (this.gameEngine) {
+                    this.gameEngine.shareReplay();
+                }
+            });
+        }
+        
+        const viewLeaderboardBtn = document.getElementById('view-leaderboard');
+        if (viewLeaderboardBtn) {
+            viewLeaderboardBtn.addEventListener('click', () => {
+                console.log('🏆 Leaderboard button clicked');
+                if (this.gameEngine) {
+                    this.gameEngine.showLeaderboard();
+                }
+            });
+        }
+        
         // Game controls
         document.addEventListener('keydown', (e) => {
             console.log('⌨️ Key pressed:', e.code, 'Game running:', this.gameEngine?.gameRunning);
