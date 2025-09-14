@@ -428,33 +428,51 @@ class PowerUpSystem {
     }
     
     showMessage(text, type = 'info') {
-        // Create floating message
-        const message = document.createElement('div');
-        message.textContent = text;
-        message.style.cssText = `
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: ${type === 'success' ? '#00ff88' : type === 'warning' ? '#ffaa00' : '#00ccff'};
-            color: #000;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            font-size: 1.1rem;
-            z-index: 1000;
-            animation: messageFloat 2s ease-out forwards;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-        `;
+        // Get or create notification container
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            console.warn('Notification container not found, falling back to body');
+            container = document.body;
+        }
         
-        document.body.appendChild(message);
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `game-notification ${type}`;
+        notification.textContent = text;
         
+        // Add to container
+        container.appendChild(notification);
+        
+        // Trigger show animation
         setTimeout(() => {
-            if (message.parentNode) {
-                message.parentNode.removeChild(message);
-            }
-        }, 2000);
+            notification.classList.add('show');
+        }, 50);
+        
+        // Auto remove after delay
+        setTimeout(() => {
+            notification.classList.remove('show');
+            notification.classList.add('hide');
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 400);
+        }, 2500);
+        
+        // Clean up old notifications if too many
+        const notifications = container.querySelectorAll('.game-notification');
+        if (notifications.length > 4) {
+            const oldest = notifications[0];
+            oldest.classList.remove('show');
+            oldest.classList.add('hide');
+            setTimeout(() => {
+                if (oldest.parentNode) {
+                    oldest.parentNode.removeChild(oldest);
+                }
+            }, 400);
+        }
     }
     
     updatePowerUpDisplay() {

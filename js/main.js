@@ -293,6 +293,53 @@ class NeuroSnakeApp {
     setupMobileControls() {
         console.log('📱 Setting up mobile touch controls...');
         
+        // Force show mobile controls on touch devices
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+        const isSmallScreen = window.innerWidth <= 768;
+        const mobileControls = document.getElementById('mobile-controls');
+        
+        // Add detailed debug logging
+        console.log('Mobile detection:', {
+            ontouchstart: 'ontouchstart' in window,
+            maxTouchPoints: navigator.maxTouchPoints,
+            msMaxTouchPoints: navigator.msMaxTouchPoints,
+            isTouchDevice: isTouchDevice,
+            screenWidth: window.innerWidth,
+            isSmallScreen: isSmallScreen,
+            userAgent: navigator.userAgent,
+            mobileControlsFound: !!mobileControls
+        });
+        
+        if (mobileControls && (isTouchDevice || isSmallScreen)) {
+            console.log('📱 Touch device or small screen detected, showing mobile controls');
+            mobileControls.style.display = 'block';
+            document.body.classList.add('mobile-device');
+            console.log('Mobile controls display style:', mobileControls.style.display);
+            console.log('Body classes:', document.body.className);
+            
+            // Add a visible indicator for debugging
+            const debugIndicator = document.createElement('div');
+            debugIndicator.innerHTML = '📱 MOBILE DETECTED';
+            debugIndicator.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                background: red;
+                color: white;
+                padding: 10px;
+                z-index: 9999;
+                font-size: 12px;
+            `;
+            document.body.appendChild(debugIndicator);
+            
+        } else {
+            console.log('❌ Mobile controls NOT shown. Reasons:', {
+                noMobileControls: !mobileControls,
+                notTouchDevice: !isTouchDevice,
+                notSmallScreen: !isSmallScreen
+            });
+        }
+        
         // Direction buttons
         const directionButtons = {
             'up-btn': { x: 0, y: -1 },
