@@ -535,6 +535,15 @@ class NeuroSnakeApp {
             return;
         }
         
+        // Check for active notifications and close them first
+        const notificationContainer = document.getElementById('notification-container');
+        if (notificationContainer && notificationContainer.children.length > 0) {
+            console.log('📱 Closing active notifications');
+            // Clear all notifications
+            notificationContainer.innerHTML = '';
+            return;
+        }
+        
         // Check current game state and handle accordingly
         if (!this.gameEngine) return;
         
@@ -563,7 +572,7 @@ class NeuroSnakeApp {
             return;
         }
         
-        // If game is running, pause it
+        // Only pause if game is running and no other UI elements need attention
         if (this.gameEngine.gameRunning && !this.gameEngine.isPaused) {
             console.log('📱 ESC during game - pausing');
             this.togglePause();
