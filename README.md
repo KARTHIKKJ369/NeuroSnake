@@ -2,6 +2,9 @@
 
 **A modern twist on the classic Snake game featuring AI difficulty adaptation, power-ups, and multiplayer action!**
 
+## 🌐 Play Online
+**[🎮 Play NeuroSnake Now!](https://karthikkj369.github.io/NeuroSnake/)**
+
 ## 🚀 How to Run the Game
 
 ### Method 1: Direct File Opening
@@ -58,7 +61,6 @@
 | `4` | Use Time Freeze power-up |
 | `5` | Use Ghost Mode power-up |
 | `ESC` | Pause/Resume game |
-| `R` | Restart current game |
 
 ### Power-Up System
 Collect and use 5 different power-ups strategically:
