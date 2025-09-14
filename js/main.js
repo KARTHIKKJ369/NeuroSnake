@@ -28,9 +28,18 @@ class NeuroSnakeApp {
         this.powerUpSystem = new PowerUpSystem(this.gameEngine);
         this.themeSystem = new ThemeSystem(this.gameEngine);
         this.multiplayer = new MultiplayerSystem(this.gameEngine);
+        this.trendingFoodSystem = new TrendingFoodSystem();
+        
+        // Make systems globally accessible
+        window.gameEngine = this.gameEngine;
+        window.aiSystem = this.aiSystem;
+        window.powerUpSystem = this.powerUpSystem;
+        window.themeSystem = this.themeSystem;
+        window.multiplayer = this.multiplayer;
+        window.trendingFoodSystem = this.trendingFoodSystem;
         
         // Wait for trending food system to initialize
-        if (window.trendingFoodSystem) {
+        if (this.trendingFoodSystem) {
             console.log('⏳ Waiting for trending food system...');
             // Give it a moment to fetch initial data
             await new Promise(resolve => setTimeout(resolve, 2000));
