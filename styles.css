@@ -546,7 +546,7 @@ kbd {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
-    gap: 8px;
+    gap: 3px;
     width: 150px;
     height: 150px;
 }
@@ -627,6 +627,12 @@ kbd {
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .control-btn::before {
@@ -786,27 +792,29 @@ kbd {
     }
     
     .controls-layout {
-        padding: 15px;
+        padding: 10px;
     }
     
     .controls-left, .controls-right {
-        padding: 12px;
+        padding: 6px;
     }
     
     .dpad-container {
-        width: 130px;
-        height: 130px;
-        gap: 6px;
+        width: 150px;
+        height: 150px;
+        gap: 2px;
     }
     
     .power-btn, .action-btn {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
+        font-size: 14px;
     }
     
     .direction-btn {
-        width: 38px;
-        height: 38px;
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
     }
     
     .power-icon, .action-icon {

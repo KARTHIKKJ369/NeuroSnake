@@ -411,16 +411,34 @@ class NeuroSnakeApp {
         
         // Mobile ESC button
         const mobileEscBtn = document.getElementById('mobile-esc-btn');
+        console.log('Mobile ESC button found:', !!mobileEscBtn);
         if (mobileEscBtn) {
             mobileEscBtn.addEventListener('touchstart', (e) => {
+                console.log('📱 Mobile ESC touchstart event fired');
                 e.preventDefault();
                 this.handleMobileEsc();
             });
             
             mobileEscBtn.addEventListener('click', (e) => {
+                console.log('📱 Mobile ESC click event fired');
                 e.preventDefault();
                 this.handleMobileEsc();
             });
+            
+            // Add visual feedback for debugging
+            mobileEscBtn.addEventListener('touchstart', () => {
+                console.log('📱 ESC button touched - adding visual feedback');
+                mobileEscBtn.style.backgroundColor = 'red';
+                mobileEscBtn.style.transform = 'scale(0.9)';
+            });
+            
+            mobileEscBtn.addEventListener('touchend', () => {
+                console.log('📱 ESC button touch ended - removing visual feedback');
+                mobileEscBtn.style.backgroundColor = '';
+                mobileEscBtn.style.transform = 'scale(1)';
+            });
+        } else {
+            console.error('❌ Mobile ESC button not found!');
         }
         
         console.log('✅ Mobile controls set up successfully!');
@@ -517,7 +535,13 @@ class NeuroSnakeApp {
     }
 
     handleMobileEsc() {
-        console.log('📱 Mobile ESC button pressed');
+        console.log('📱 Mobile ESC button pressed - handleMobileEsc called');
+        
+        // Add visual feedback to the whole screen for debugging
+        document.body.style.backgroundColor = 'red';
+        setTimeout(() => {
+            document.body.style.backgroundColor = '';
+        }, 200);
         
         // Check if a modal is open and close it
         const leaderboardModal = document.getElementById('leaderboard-modal');
@@ -544,8 +568,12 @@ class NeuroSnakeApp {
             return;
         }
         
-        // Check current game state and handle accordingly
-        if (!this.gameEngine) return;
+        // Check current game state and handle accordingly - MATCH PC ESC BEHAVIOR
+        if (!this.gameEngine) {
+            console.log('📋 No game engine - showing main menu');
+            this.showMainMenu();
+            return;
+        }
         
         const gameOverlay = document.getElementById('game-overlay');
         const pauseMenu = document.getElementById('pause-menu');
@@ -559,10 +587,10 @@ class NeuroSnakeApp {
             return;
         }
         
-        // If pause menu is showing, resume the game
+        // If pause menu is showing, show main menu (like PC ESC)
         if (pauseMenu && !pauseMenu.classList.contains('hidden')) {
-            console.log('📱 ESC from pause menu - resuming game');
-            this.resumeGame();
+            console.log('📱 ESC from pause menu - showing main menu');
+            this.showMainMenu();
             return;
         }
         
@@ -572,21 +600,17 @@ class NeuroSnakeApp {
             return;
         }
         
-        // Only pause if game is running and no other UI elements need attention
+        // If game is running - pause and show pause menu (like PC ESC)
         if (this.gameEngine.gameRunning && !this.gameEngine.isPaused) {
-            console.log('📱 ESC during game - pausing');
-            this.togglePause();
+            console.log('📱 ESC during game - pausing and showing pause menu');
+            this.gameEngine.togglePause();
+            this.showPauseMenu();
             return;
         }
         
-        // If game is paused, resume it
-        if (this.gameEngine.isPaused) {
-            console.log('📱 ESC from paused game - resuming');
-            this.resumeGame();
-            return;
-        }
-        
-        console.log('📱 ESC button - no specific action for current state');
+        // Fallback - show main menu
+        console.log('📱 ESC fallback - showing main menu');
+        this.showMainMenu();
     }
     
     startGame(mode = 'single') {
