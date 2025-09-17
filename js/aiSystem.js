@@ -232,9 +232,11 @@ class AISystem {
     
     managePowerUpSpawning() {
         if (!game || !window.powerUpSystem) return;
-        
+        // Ensure game.powerUps is always an array
+        if (!Array.isArray(game.powerUps)) {
+            game.powerUps = [];
+        }
         const shouldSpawnPowerUp = Math.random() < (0.02 * this.difficultyModifiers.powerUpFrequency);
-        
         if (shouldSpawnPowerUp && game.powerUps.length < 2) {
             window.powerUpSystem.spawnRandomPowerUp();
         }
